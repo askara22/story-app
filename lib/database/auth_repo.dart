@@ -40,7 +40,7 @@ class AuthRepository {
     );
 
     if (response.statusCode == 200) {
-      List<dynamic> data = json.decode(response.body)['data'];
+      List<dynamic> data = json.decode(response.body)['listStory'];
       List<Story> stories = data.map((json) => Story.fromJson(json)).toList();
       return stories;
     } else {
@@ -70,8 +70,12 @@ class AuthRepository {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
+      final token = data['loginResult']['token'];
 
-      return {'success': true};
+      final preferences = await SharedPreferences.getInstance();
+      await preferences.setString('token', token);
+
+      return {'success': true, 'token': token};
     } else {
       final responseData = jsonDecode(response.body);
       return {'success': false, 'message': responseData['message']};
@@ -80,8 +84,9 @@ class AuthRepository {
 
   Future<bool> logout() async {
     final preferences = await SharedPreferences.getInstance();
-    await Future.delayed(const Duration(seconds: 2));
-    return preferences.setBool(stateKey, false);
+    await preferences.remove('token');
+    await preferences.setBool(stateKey, false);
+    return true;
   }
 
   Future<bool> saveUser(User user) async {
@@ -107,5 +112,10 @@ class AuthRepository {
       user = null;
     }
     return user;
+  }
+
+  Future<String?> getToken() async {
+    final preferences = await SharedPreferences.getInstance();
+    return preferences.getString('token');
   }
 }

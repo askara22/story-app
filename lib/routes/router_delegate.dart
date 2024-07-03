@@ -25,6 +25,16 @@ class MyRouterDelegate extends RouterDelegate
   bool? isLoggedIn;
   bool isRegister = false;
 
+  void onLogin(String token) {
+    isLoggedIn = true;
+    notifyListeners();
+  }
+
+  void onLogout() {
+    isLoggedIn = false;
+    notifyListeners();
+  }
+
   _init() async {
     isLoggedIn = await authRepository.isLoggedIn();
     notifyListeners();

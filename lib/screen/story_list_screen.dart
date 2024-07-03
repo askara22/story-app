@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:submission_flutter_4/model/story.dart';
 import 'package:submission_flutter_4/provider/auth_provider.dart';
+import 'package:submission_flutter_4/provider/story_provider.dart';
 
 class StoryListScreen extends StatelessWidget {
   final Function() onLogout;
@@ -12,7 +14,9 @@ class StoryListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final authWatch = context.watch<AuthProvider>();
+    final authProvider = context.watch<AuthProvider>();
+    final storyProvider = context.watch<StoryProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Story App"),
@@ -24,7 +28,7 @@ class StoryListScreen extends StatelessWidget {
               if (result) onLogout();
             },
             tooltip: "Logout",
-            icon: authWatch.isLoadingLogout
+            icon: authProvider.isLoadingLogout
                 ? const CircularProgressIndicator(
                     color: Colors.white,
                   )
@@ -33,14 +37,31 @@ class StoryListScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {},
+        onPressed: () async {
+          await storyProvider.fetchStories(); // Fetch stories here
+        },
         tooltip: "New Story",
-        child: authWatch.isLoadingLogout
-            ? const CircularProgressIndicator(
-                color: Colors.white,
-              )
-            : const Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
+      body: storyProvider.isLoading
+          ? Center(child: CircularProgressIndicator())
+          : storyProvider.errorMessage != null
+              ? Center(child: Text('Error: ${storyProvider.errorMessage}'))
+              : ListView.builder(
+                  itemCount: storyProvider.stories.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      leading: Image.network(
+                        storyProvider.stories[index].photoUrl,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                      title: Text(storyProvider.stories[index].name),
+                      subtitle: Text(storyProvider.stories[index].description),
+                    );
+                  },
+                ),
     );
   }
 }
