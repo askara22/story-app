@@ -19,7 +19,7 @@ class MyRouterDelegate extends RouterDelegate
   @override
   GlobalKey<NavigatorState> get navigatorKey => _navigatorKey;
 
-  String? selectedQuote;
+  String? selectedStoryId;
 
   List<Page> historyStack = [];
   bool? isLoggedIn;
@@ -32,6 +32,11 @@ class MyRouterDelegate extends RouterDelegate
 
   void onLogout() {
     isLoggedIn = false;
+    notifyListeners();
+  }
+
+  void onSelectStory(String storyId) {
+    selectedStoryId = storyId;
     notifyListeners();
   }
 
@@ -84,19 +89,17 @@ class MyRouterDelegate extends RouterDelegate
               isLoggedIn = false;
               notifyListeners();
             },
-            // quotes: quotes,
-            // onTapped: (String quoteId) {
-            //   selectedQuote = quoteId;
-            //   notifyListeners();
-            // },
+            onStorySelected: (storyId) {
+              onSelectStory(storyId);
+            },
           ),
         ),
-        if (selectedQuote != null)
+        if (selectedStoryId != null)
           MaterialPage(
-            key: ValueKey(selectedQuote),
-            child: const StoryDetailScreen(
-                // quoteId: selectedQuote!,
-                ),
+            key: ValueKey(selectedStoryId),
+            child: StoryDetailScreen(
+              storyId: selectedStoryId!,
+            ),
           ),
       ];
 
@@ -119,7 +122,7 @@ class MyRouterDelegate extends RouterDelegate
         }
 
         isRegister = false;
-        selectedQuote = null;
+        selectedStoryId = null;
         notifyListeners();
 
         return true;

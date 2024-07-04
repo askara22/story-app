@@ -9,6 +9,7 @@ class AuthRepository {
   final String stateKey = "state";
   final String userKey = "user";
   static const baseUrl = 'https://story-api.dicoding.dev/v1';
+  static const tokenKey = 'token';
 
   Future<Map<String, dynamic>> register(User user) async {
     final response = await http.post(
@@ -84,7 +85,7 @@ class AuthRepository {
 
   Future<bool> logout() async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.remove('token');
+    await preferences.remove(tokenKey);
     await preferences.setBool(stateKey, false);
     return true;
   }
@@ -116,6 +117,6 @@ class AuthRepository {
 
   Future<String?> getToken() async {
     final preferences = await SharedPreferences.getInstance();
-    return preferences.getString('token');
+    return preferences.getString(tokenKey);
   }
 }

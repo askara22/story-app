@@ -1,16 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:submission_flutter_4/model/story.dart';
 import 'package:submission_flutter_4/provider/auth_provider.dart';
 import 'package:submission_flutter_4/provider/story_provider.dart';
+import 'package:submission_flutter_4/screen/new_story_screen.dart';
 
-class StoryListScreen extends StatelessWidget {
+class StoryListScreen extends StatefulWidget {
   final Function() onLogout;
+  final Function(String storyId) onStorySelected;
 
   const StoryListScreen({
-    Key? key,
+    super.key,
     required this.onLogout,
-  }) : super(key: key);
+    required this.onStorySelected,
+  });
+
+  @override
+  _StoryListScreenState createState() => _StoryListScreenState();
+}
+
+class _StoryListScreenState extends State<StoryListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final storyProvider = context.read<StoryProvider>();
+    storyProvider.fetchStories();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +39,7 @@ class StoryListScreen extends StatelessWidget {
             onPressed: () async {
               final authRead = context.read<AuthProvider>();
               final result = await authRead.logout();
-              if (result) onLogout();
+              if (result) widget.onLogout();
             },
             tooltip: "Logout",
             icon: authProvider.isLoadingLogout
@@ -37,28 +51,62 @@ class StoryListScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await storyProvider.fetchStories(); // Fetch stories here
+        onPressed: () {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const NewStoryScreen()));
         },
         tooltip: "New Story",
         child: const Icon(Icons.add),
       ),
       body: storyProvider.isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : storyProvider.errorMessage != null
               ? Center(child: Text('Error: ${storyProvider.errorMessage}'))
               : ListView.builder(
                   itemCount: storyProvider.stories.length,
                   itemBuilder: (context, index) {
-                    return ListTile(
-                      leading: Image.network(
-                        storyProvider.stories[index].photoUrl,
-                        width: 50,
-                        height: 50,
-                        fit: BoxFit.cover,
+                    final story = storyProvider.stories[index];
+                    return InkWell(
+                      onTap: () {
+                        widget.onStorySelected(story.id);
+                      },
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(8),
+                                topRight: Radius.circular(8),
+                              ),
+                              child: Image.network(
+                                story.photoUrl,
+                                width: double.infinity,
+                                height: 150,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return const Icon(Icons.error);
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Text(
+                                story.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      title: Text(storyProvider.stories[index].name),
-                      subtitle: Text(storyProvider.stories[index].description),
                     );
                   },
                 ),

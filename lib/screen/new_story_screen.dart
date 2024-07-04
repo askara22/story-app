@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:submission_flutter_4/provider/image_provider.dart';
+import 'package:submission_flutter_4/provider/take_image_provider.dart';
+import 'package:submission_flutter_4/provider/upload_story_provider.dart';
 
 class NewStoryScreen extends StatefulWidget {
   const NewStoryScreen({super.key});
@@ -18,6 +19,8 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final uploadProvider = context.watch<UploadStoryProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("New Story"),
@@ -71,15 +74,46 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-                child: FilledButton(
-                    onPressed: () => _onUpload(), child: const Text('Upload'))),
+                child: ElevatedButton(
+                  onPressed: () => _onUpload(),
+                  child: context.watch<UploadStoryProvider>().isUploading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text('Upload'),
+                )),
           ],
         ),
       ),
     );
   }
 
-  _onUpload() async {}
+  _onUpload() async {
+    final takeImageProvider = context.read<TakeImageProvider>();
+    final imagePath = takeImageProvider.imagePath;
+    final imageFile = takeImageProvider.imageFile;
+
+    if (imagePath == null || imageFile == null) return;
+
+    final fileName = imageFile.name;
+    final bytes = await imageFile.readAsBytes();
+
+    final uploadProvider = context.read<UploadStoryProvider>();
+    final newBytes = await uploadProvider.compressImage(bytes);
+    await uploadProvider.upload(newBytes, fileName, 'ini deskripsi loh');
+
+    if (uploadProvider.uploadResponse != null) {
+      takeImageProvider.setImageFile(null);
+      takeImageProvider.setImagePath(null);
+    }
+
+    final ScaffoldMessengerState scaffoldMessengerState =
+        ScaffoldMessenger.of(context);
+
+    scaffoldMessengerState.showSnackBar(
+      SnackBar(content: Text(uploadProvider.message)),
+    );
+  }
 
   _onGalleryView() async {
     final provider = context.read<TakeImageProvider>();

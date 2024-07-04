@@ -39,6 +39,7 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.2.3
   http: ^1.2.1
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:

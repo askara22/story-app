@@ -14,7 +14,6 @@ class StoryProvider extends ChangeNotifier {
   Future<void> fetchStories() async {
     isLoading = true;
     errorMessage = null;
-    notifyListeners();
 
     try {
       final token = await authRepository.getToken();
