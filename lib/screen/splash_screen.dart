@@ -13,8 +13,12 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Icon(
+              Icons.search_rounded,
+              size: 100,
+            ),
             Text(
-              'Loading Splash...',
+              'One Moment...',
               style: Theme.of(context).textTheme.headlineSmall,
               textAlign: TextAlign.center,
             ),

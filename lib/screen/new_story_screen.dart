@@ -79,7 +79,7 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
                   onPressed: () => _onUpload(context),
                   child: uploadProvider.isUploading
                       ? const CircularProgressIndicator(
-                          color: Colors.white,
+                          color: Colors.purple,
                         )
                       : const Text('Upload'),
                 )),

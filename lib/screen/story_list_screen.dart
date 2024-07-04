@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:submission_flutter_4/provider/auth_provider.dart';
 import 'package:submission_flutter_4/provider/story_provider.dart';
 import 'package:submission_flutter_4/screen/new_story_screen.dart';
+import 'package:submission_flutter_4/widgets/story_card.dart';
 
 class StoryListScreen extends StatefulWidget {
   final Function() onLogout;
@@ -41,11 +42,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
               storyProvider.fetchStories();
             },
             tooltip: "Refresh",
-            icon: authProvider.isLoadingLogout
-                ? const CircularProgressIndicator(
-                    color: Colors.white,
-                  )
-                : const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
           ),
           IconButton(
             onPressed: () async {
@@ -56,7 +53,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
             tooltip: "Logout",
             icon: authProvider.isLoadingLogout
                 ? const CircularProgressIndicator(
-                    color: Colors.white,
+                    color: Colors.purple,
                   )
                 : const Icon(Icons.logout),
           ),
@@ -82,43 +79,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
                       onTap: () {
                         widget.onStorySelected(story.id);
                       },
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8)),
-                        elevation: 4,
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                topRight: Radius.circular(8),
-                              ),
-                              child: Image.network(
-                                story.photoUrl,
-                                width: double.infinity,
-                                height: 150,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return const Icon(Icons.error);
-                                },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Text(
-                                story.name,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: StoryCard(story: story),
                     );
                   },
                 ),
