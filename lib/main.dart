@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:submission_flutter_4/database/api/api_service.dart';
 import 'package:submission_flutter_4/database/auth_repo.dart';
 import 'package:submission_flutter_4/provider/auth_provider.dart';
 import 'package:submission_flutter_4/provider/take_image_provider.dart';
@@ -41,7 +40,7 @@ class _StoryAppState extends State<StoryApp> {
         ChangeNotifierProvider(
             create: (context) => StoryProvider(AuthRepository())),
         ChangeNotifierProvider(
-            create: (context) => UploadStoryProvider(ApiService())),
+            create: (context) => UploadStoryProvider(AuthRepository())),
         ChangeNotifierProvider(create: (context) => TakeImageProvider()),
       ],
       child: MaterialApp(

@@ -37,6 +37,18 @@ class _StoryListScreenState extends State<StoryListScreen> {
         actions: [
           IconButton(
             onPressed: () async {
+              final storyProvider = context.read<StoryProvider>();
+              storyProvider.fetchStories();
+            },
+            tooltip: "Refresh",
+            icon: authProvider.isLoadingLogout
+                ? const CircularProgressIndicator(
+                    color: Colors.white,
+                  )
+                : const Icon(Icons.refresh),
+          ),
+          IconButton(
+            onPressed: () async {
               final authRead = context.read<AuthProvider>();
               final result = await authRead.logout();
               if (result) widget.onLogout();
@@ -47,7 +59,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
                     color: Colors.white,
                   )
                 : const Icon(Icons.logout),
-          )
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
