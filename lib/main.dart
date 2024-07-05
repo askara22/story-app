@@ -30,6 +30,13 @@ class _StoryAppState extends State<StoryApp> {
     authProvider = AuthProvider(authRepository);
 
     myRouterDelegate = MyRouterDelegate(authRepository);
+    authProvider.addListener(() {
+      if (authProvider.isLoggedIn) {
+        myRouterDelegate.onLogin();
+      } else {
+        myRouterDelegate.onLogout();
+      }
+    });
   }
 
   @override

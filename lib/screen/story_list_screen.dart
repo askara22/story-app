@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:submission_flutter_4/provider/auth_provider.dart';
 import 'package:submission_flutter_4/provider/story_provider.dart';
-import 'package:submission_flutter_4/screen/new_story_screen.dart';
 import 'package:submission_flutter_4/widgets/story_card.dart';
 
 class StoryListScreen extends StatefulWidget {
@@ -44,11 +43,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
               storyProvider.fetchStories();
             },
             tooltip: "Refresh",
-            icon: authProvider.isLoadingLogout
-                ? const CircularProgressIndicator(
-                    color: Colors.purple,
-                  )
-                : const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
           ),
           IconButton(
             onPressed: () async {

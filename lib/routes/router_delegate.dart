@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:submission_flutter_4/database/auth_repo.dart';
 import 'package:submission_flutter_4/screen/login_screen.dart';
 import 'package:submission_flutter_4/screen/new_story_screen.dart';
@@ -27,7 +28,7 @@ class MyRouterDelegate extends RouterDelegate
   bool isRegister = false;
   bool isNewStory = false;
 
-  void onLogin(String token) {
+  void onLogin() {
     isLoggedIn = true;
     notifyListeners();
   }
@@ -43,7 +44,9 @@ class MyRouterDelegate extends RouterDelegate
   }
 
   _init() async {
-    isLoggedIn = await authRepository.isLoggedIn();
+    final preferences = await SharedPreferences.getInstance();
+    isLoggedIn = preferences.getBool('isLoggedIn') ?? false;
+    authRepository.token = preferences.getString('token');
     notifyListeners();
   }
 
@@ -59,8 +62,7 @@ class MyRouterDelegate extends RouterDelegate
           key: const ValueKey("LoginPage"),
           child: LoginScreen(
             onLogin: () {
-              isLoggedIn = true;
-              notifyListeners();
+              onLogin();
             },
             onRegister: () {
               isRegister = true;
@@ -88,8 +90,7 @@ class MyRouterDelegate extends RouterDelegate
           key: const ValueKey("StoryListPage"),
           child: StoryListScreen(
             onLogout: () {
-              isLoggedIn = false;
-              notifyListeners();
+              onLogout();
             },
             onStorySelected: (storyId) {
               onSelectStory(storyId);
