@@ -8,11 +8,13 @@ import 'package:submission_flutter_4/widgets/story_card.dart';
 class StoryListScreen extends StatefulWidget {
   final Function() onLogout;
   final Function(String storyId) onStorySelected;
+  final Function() toNewStory;
 
   const StoryListScreen({
     super.key,
     required this.onLogout,
     required this.onStorySelected,
+    required this.toNewStory,
   });
 
   @override
@@ -42,7 +44,11 @@ class _StoryListScreenState extends State<StoryListScreen> {
               storyProvider.fetchStories();
             },
             tooltip: "Refresh",
-            icon: const Icon(Icons.refresh),
+            icon: authProvider.isLoadingLogout
+                ? const CircularProgressIndicator(
+                    color: Colors.purple,
+                  )
+                : const Icon(Icons.refresh),
           ),
           IconButton(
             onPressed: () async {
@@ -61,8 +67,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const NewStoryScreen()));
+          widget.toNewStory();
         },
         tooltip: "New Story",
         child: const Icon(Icons.add),

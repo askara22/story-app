@@ -9,7 +9,9 @@ import 'package:submission_flutter_4/provider/take_image_provider.dart';
 import 'package:submission_flutter_4/provider/upload_story_provider.dart';
 
 class NewStoryScreen extends StatefulWidget {
-  const NewStoryScreen({super.key});
+  final Function onNewStory;
+
+  const NewStoryScreen({super.key, required this.onNewStory});
 
   @override
   State<NewStoryScreen> createState() => _NewStoryScreenState();
@@ -125,7 +127,7 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
       );
       final storyProvider = context.read<StoryProvider>();
       storyProvider.fetchStories();
-      Navigator.of(context).pop();
+      widget.onNewStory();
     }
   }
 

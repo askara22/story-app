@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:submission_flutter_4/database/auth_repo.dart';
 import 'package:submission_flutter_4/screen/login_screen.dart';
+import 'package:submission_flutter_4/screen/new_story_screen.dart';
 import 'package:submission_flutter_4/screen/register_screen.dart';
 import 'package:submission_flutter_4/screen/splash_screen.dart';
 import 'package:submission_flutter_4/screen/story_detail_screen.dart';
@@ -24,6 +25,7 @@ class MyRouterDelegate extends RouterDelegate
   List<Page> historyStack = [];
   bool? isLoggedIn;
   bool isRegister = false;
+  bool isNewStory = false;
 
   void onLogin(String token) {
     isLoggedIn = true;
@@ -92,6 +94,10 @@ class MyRouterDelegate extends RouterDelegate
             onStorySelected: (storyId) {
               onSelectStory(storyId);
             },
+            toNewStory: () {
+              isNewStory = true;
+              notifyListeners();
+            },
           ),
         ),
         if (selectedStoryId != null)
@@ -100,6 +106,14 @@ class MyRouterDelegate extends RouterDelegate
             child: StoryDetailScreen(
               storyId: selectedStoryId!,
             ),
+          ),
+        if (isNewStory)
+          MaterialPage(
+            key: const ValueKey("NewStoryPage"),
+            child: NewStoryScreen(onNewStory: () {
+              isNewStory = false;
+              notifyListeners();
+            }),
           ),
       ];
 
@@ -121,10 +135,16 @@ class MyRouterDelegate extends RouterDelegate
           return false;
         }
 
-        isRegister = false;
-        selectedStoryId = null;
+        if (selectedStoryId != null) {
+          selectedStoryId = null;
+        } else if (isNewStory) {
+          isNewStory = false;
+        } else if (isRegister) {
+          isRegister = false;
+        } else {
+          isLoggedIn = false;
+        }
         notifyListeners();
-
         return true;
       },
     );
