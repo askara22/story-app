@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:submission_flutter_4/provider/story_provider.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
-class StoryDetailScreen extends StatelessWidget {
+class StoryDetailScreen extends StatefulWidget {
   final String storyId;
 
   const StoryDetailScreen({super.key, required this.storyId});
 
   @override
+  State<StoryDetailScreen> createState() => _StoryDetailScreenState();
+}
+
+class _StoryDetailScreenState extends State<StoryDetailScreen> {
+  GoogleMapController? mapController;
+  late final Set<Marker> markers = {};
+  geo.Placemark? placemark;
+
+  @override
   Widget build(BuildContext context) {
     final storyProvider = context.watch<StoryProvider>();
     final story =
-        storyProvider.stories.firstWhere((story) => story.id == storyId);
+        storyProvider.stories.firstWhere((story) => story.id == widget.storyId);
+    final storyLocation = LatLng(story.lat!, story.lon!);
 
     return Scaffold(
       appBar: AppBar(
@@ -23,16 +34,30 @@ class StoryDetailScreen extends StatelessWidget {
               children: [
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: LatLng(story.lat!, story.lon!),
+                    target: storyLocation,
                     zoom: 18,
                   ),
-                  markers: {
-                    Marker(
-                      markerId: MarkerId(story.id),
-                      position: LatLng(story.lat!, story.lon!),
-                    ),
-                  },
+                  markers: markers,
                   myLocationEnabled: true,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  onMapCreated: (controller) async {
+                    final info = await geo.placemarkFromCoordinates(
+                        story.lat!, story.lon!);
+                    final place = info[0];
+                    final street = place.street!;
+                    final address =
+                        '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+                    setState(() {
+                      placemark = place;
+                    });
+                    defineMarker(storyLocation, street, address);
+
+                    setState(() {
+                      mapController = controller;
+                    });
+                  },
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -125,5 +150,20 @@ class StoryDetailScreen extends StatelessWidget {
               ),
             ),
     );
+  }
+
+  void defineMarker(LatLng latLng, String street, String address) {
+    final marker = Marker(
+      markerId: const MarkerId("source"),
+      position: latLng,
+      infoWindow: InfoWindow(
+        title: street,
+        snippet: address,
+      ),
+    );
+    setState(() {
+      markers.clear();
+      markers.add(marker);
+    });
   }
 }
