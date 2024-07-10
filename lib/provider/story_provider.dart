@@ -29,6 +29,7 @@ class StoryProvider extends ChangeNotifier {
   Future<void> fetchMoreStories() async {
     if (isFetchingMore || !hasMoreStories) return;
     isFetchingMore = true;
+    notifyListeners();
     await _fetchStories();
     isFetchingMore = false;
     notifyListeners();

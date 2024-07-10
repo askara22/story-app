@@ -33,9 +33,9 @@ class AuthRepository {
     }
   }
 
-  Future<List<Story>> getStories(String token, int page, int pageSize) async {
+  Future<List<Story>> getStories(String token, int page, int size) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/stories?page=$page&size=$pageSize'),
+      Uri.parse('$baseUrl/stories?page=$page&size=$size'),
       headers: {'Authorization': 'Bearer $token'},
     );
 

@@ -39,7 +39,7 @@ class _StoryListScreenState extends State<StoryListScreen> {
 
   void _onScroll() {
     if (scrollController.position.pixels >=
-        scrollController.position.maxScrollExtent * 0.8) {
+        scrollController.position.maxScrollExtent - 300) {
       final storyProvider = context.read<StoryProvider>();
       if (storyProvider.hasMoreStories && !storyProvider.isFetchingMore) {
         storyProvider.fetchMoreStories();
@@ -92,12 +92,11 @@ class _StoryListScreenState extends State<StoryListScreen> {
               ? Center(child: Text('Error: ${storyProvider.errorMessage}'))
               : ListView.builder(
                   controller: scrollController,
-                  itemCount: storyProvider.stories.length + 1,
+                  itemCount: storyProvider.stories.length +
+                      (storyProvider.isFetchingMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == storyProvider.stories.length) {
-                      return storyProvider.hasMoreStories
-                          ? const Center(child: CircularProgressIndicator())
-                          : const SizedBox.shrink();
+                      return const Center(child: CircularProgressIndicator());
                     }
                     final story = storyProvider.stories[index];
                     return InkWell(
