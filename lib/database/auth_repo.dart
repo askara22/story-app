@@ -25,8 +25,6 @@ class AuthRepository {
       }),
     );
 
-    print('Register response: ${response.statusCode} - ${response.body}');
-
     if (response.statusCode == 201) {
       return {'success': true};
     } else {
@@ -68,8 +66,6 @@ class AuthRepository {
       }),
     );
 
-    print('Login response: ${response.statusCode} - ${response.body}');
-
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final token = data['loginResult']['token'];
@@ -95,7 +91,7 @@ class AuthRepository {
   Future<bool> saveUser(User user) async {
     final preferences = await SharedPreferences.getInstance();
     await Future.delayed(const Duration(seconds: 2));
-    return preferences.setString(userKey, user.toJson());
+    return preferences.setString(userKey, user.toJson() as String);
   }
 
   Future<bool> deleteUser() async {

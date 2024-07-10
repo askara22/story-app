@@ -4,7 +4,7 @@ import 'package:submission_flutter_4/model/story.dart';
 
 class StoryProvider extends ChangeNotifier {
   final AuthRepository authRepository;
-  List<Story> _stories = [];
+  final List<Story> _stories = [];
   List<Story> get stories => _stories;
   bool isLoading = false;
   bool isFetchingMore = false;

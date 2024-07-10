@@ -1,5 +1,8 @@
-import 'dart:convert';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'user.g.dart';
+
+@JsonSerializable()
 class User {
   String? name;
   String? email;
@@ -30,8 +33,8 @@ class User {
     );
   }
 
-  String toJson() => json.encode(toMap());
-  factory User.fromJson(String source) => User.fromMap(json.decode(source));
+  factory User.fromJson(json) => _$UserFromJson(json);
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 
   @override
   bool operator ==(Object other) {

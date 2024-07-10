@@ -38,7 +38,7 @@ class ApiService {
 
     if (statusCode == 201) {
       final UploadResponse uploadResponse = UploadResponse.fromJson(
-        responseData,
+        responseData as Map<String, dynamic>,
       );
       return uploadResponse;
     } else {
