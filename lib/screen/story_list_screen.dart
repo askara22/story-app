@@ -21,11 +21,30 @@ class StoryListScreen extends StatefulWidget {
 }
 
 class _StoryListScreenState extends State<StoryListScreen> {
+  final ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    scrollController.addListener(_onScroll);
     final storyProvider = context.read<StoryProvider>();
     storyProvider.fetchStories();
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (scrollController.position.pixels >=
+        scrollController.position.maxScrollExtent * 0.8) {
+      final storyProvider = context.read<StoryProvider>();
+      if (storyProvider.hasMoreStories && !storyProvider.isFetchingMore) {
+        storyProvider.fetchMoreStories();
+      }
+    }
   }
 
   @override
@@ -72,8 +91,14 @@ class _StoryListScreenState extends State<StoryListScreen> {
           : storyProvider.errorMessage != null
               ? Center(child: Text('Error: ${storyProvider.errorMessage}'))
               : ListView.builder(
-                  itemCount: storyProvider.stories.length,
+                  controller: scrollController,
+                  itemCount: storyProvider.stories.length + 1,
                   itemBuilder: (context, index) {
+                    if (index == storyProvider.stories.length) {
+                      return storyProvider.hasMoreStories
+                          ? const Center(child: CircularProgressIndicator())
+                          : const SizedBox.shrink();
+                    }
                     final story = storyProvider.stories[index];
                     return InkWell(
                       onTap: () {

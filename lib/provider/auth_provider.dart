@@ -71,10 +71,10 @@ class AuthProvider extends ChangeNotifier {
     return isSuccess;
   }
 
-  Future<List<Story>> getStories() async {
+  Future<List<Story>> getStories(int page, int pageSize) async {
     if (token == null) {
       return [];
     }
-    return await authRepository.getStories(token!);
+    return await authRepository.getStories(token!, page, pageSize);
   }
 }

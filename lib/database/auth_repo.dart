@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:submission_flutter_4/model/story.dart';
 import 'package:submission_flutter_4/model/user.dart';
@@ -36,9 +35,9 @@ class AuthRepository {
     }
   }
 
-  Future<List<Story>> getStories(String token) async {
+  Future<List<Story>> getStories(String token, int page, int pageSize) async {
     final response = await http.get(
-      Uri.parse('$baseUrl/stories'),
+      Uri.parse('$baseUrl/stories?page=$page&size=$pageSize'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
