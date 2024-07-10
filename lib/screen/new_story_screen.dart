@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
 import 'package:provider/provider.dart';
 import 'package:submission_flutter_4/provider/story_provider.dart';
 import 'package:submission_flutter_4/provider/take_image_provider.dart';
 import 'package:submission_flutter_4/provider/upload_story_provider.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 
 class NewStoryScreen extends StatefulWidget {
   final Function onNewStory;
@@ -19,9 +21,12 @@ class NewStoryScreen extends StatefulWidget {
 }
 
 class _NewStoryScreenState extends State<NewStoryScreen> {
+  final myLocation = const LatLng(-6.2825318, 107.0932444);
   TextEditingController desController = TextEditingController();
   GoogleMapController? mapController;
   LatLng? currentLocation;
+  late final Set<Marker> markers = {};
+  geo.Placemark? placemark;
 
   @override
   void initState() {
@@ -117,26 +122,53 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
               flex: 1,
               child: currentLocation == null
                   ? const Center(child: CircularProgressIndicator())
-                  : GoogleMap(
-                      initialCameraPosition: CameraPosition(
-                        target: currentLocation!,
-                        zoom: 17,
-                      ),
-                      onMapCreated: (GoogleMapController controller) {
-                        mapController = controller;
-                      },
-                      onTap: (LatLng latLng) {
-                        setState(() {
-                          currentLocation = latLng;
-                        });
-                      },
-                      markers: {
-                        Marker(
-                          markerId: const MarkerId('selected_location'),
-                          position: currentLocation!,
+                  : Stack(children: [
+                      GoogleMap(
+                        myLocationEnabled: true,
+                        initialCameraPosition: CameraPosition(
+                          target: myLocation,
+                          zoom: 18,
                         ),
-                      },
-                    ),
+                        onMapCreated: (controller) async {
+                          final info = await geo.placemarkFromCoordinates(
+                              myLocation.latitude, myLocation.longitude);
+                          final place = info[0];
+                          final street = place.street!;
+                          final address =
+                              '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+                          setState(() {
+                            placemark = place;
+                          });
+                          defineMarker(myLocation, street, address);
+
+                          setState(() {
+                            mapController = controller;
+                          });
+                        },
+                        onTap: (LatLng latLng) {
+                          setState(() {
+                            currentLocation = latLng;
+                          });
+                        },
+                        markers: markers,
+                        zoomControlsEnabled: false,
+                        mapToolbarEnabled: false,
+                        myLocationButtonEnabled: false,
+                        onLongPress: (LatLng latLng) {
+                          onLongPressGoogleMap(latLng);
+                        },
+                      ),
+                      Positioned(
+                        top: 12,
+                        right: 12,
+                        child: FloatingActionButton(
+                          child: const Icon(Icons.my_location),
+                          onPressed: () {
+                            onMyLocationButtonPress();
+                          },
+                        ),
+                      ),
+                    ]),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
@@ -151,6 +183,78 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void onLongPressGoogleMap(LatLng latLng) async {
+    final info =
+        await geo.placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+    final place = info[0];
+    final street = place.street!;
+    final address =
+        '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+    setState(() {
+      placemark = place;
+    });
+    defineMarker(latLng, street, address);
+
+    mapController?.animateCamera(
+      CameraUpdate.newLatLng(latLng),
+    );
+  }
+
+  void defineMarker(LatLng latLng, String street, String address) {
+    final marker = Marker(
+      markerId: const MarkerId("source"),
+      position: latLng,
+      infoWindow: InfoWindow(
+        title: street,
+        snippet: address,
+      ),
+    );
+    setState(() {
+      markers.clear();
+      markers.add(marker);
+    });
+  }
+
+  void onMyLocationButtonPress() async {
+    final Location location = Location();
+    late bool serviceEnabled;
+    late PermissionStatus permissionGranted;
+    late LocationData locationData;
+
+    serviceEnabled = await location.serviceEnabled();
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
+        print("Location services is not available");
+        return;
+      }
+    }
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
+        print("Location permission is denied");
+        return;
+      }
+    }
+    locationData = await location.getLocation();
+    final latLng = LatLng(locationData.latitude!, locationData.longitude!);
+    final info =
+        await geo.placemarkFromCoordinates(latLng.latitude, latLng.longitude);
+
+    final place = info[0];
+    final street = place.street!;
+    final address =
+        '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+    setState(() {
+      placemark = place;
+    });
+    defineMarker(latLng, street, address);
+    mapController?.animateCamera(
+      CameraUpdate.newLatLng(latLng),
     );
   }
 
