@@ -19,8 +19,8 @@ class UploadStoryProvider with ChangeNotifier {
     List<int> bytes,
     String fileName,
     String description,
-    double latitude,
-    double longitude,
+    double lat,
+    double lon,
   ) async {
     try {
       isUploading = true;
@@ -43,8 +43,9 @@ class UploadStoryProvider with ChangeNotifier {
 
       request.files.add(multiPartFile);
       request.fields['description'] = description;
-      request.fields['lat'] = latitude.toString();
-      request.fields['lon'] = longitude.toString();
+      request.fields['lat'] = lat.toString();
+      request.fields['lon'] = lon.toString();
+      print('Uploading story with lat: $lat, lon: $lon');
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

@@ -23,7 +23,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     final storyProvider = context.watch<StoryProvider>();
     final story =
         storyProvider.stories.firstWhere((story) => story.id == widget.storyId);
-    final storyLocation = LatLng(story.lat!, story.lon!);
+    print('Displaying story with lat: ${story.lat}, lon: ${story.lon}');
 
     return Scaffold(
       appBar: AppBar(
@@ -34,7 +34,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
               children: [
                 GoogleMap(
                   initialCameraPosition: CameraPosition(
-                    target: storyLocation,
+                    target: LatLng(story.lat!, story.lon!),
                     zoom: 18,
                   ),
                   markers: markers,
@@ -52,6 +52,7 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
                     setState(() {
                       placemark = place;
                     });
+                    final storyLocation = LatLng(story.lat!, story.lon!);
                     defineMarker(storyLocation, street, address);
 
                     setState(() {
