@@ -143,11 +143,6 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
                       mapController = controller;
                     });
                   },
-                  onTap: (LatLng latLng) {
-                    setState(() {
-                      currentLocation = latLng;
-                    });
-                  },
                   markers: markers,
                   zoomControlsEnabled: false,
                   mapToolbarEnabled: false,
