@@ -120,55 +120,54 @@ class _NewStoryScreenState extends State<NewStoryScreen> {
             ),
             Expanded(
               flex: 1,
-              child: currentLocation == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : Stack(children: [
-                      GoogleMap(
-                        myLocationEnabled: true,
-                        initialCameraPosition: CameraPosition(
-                          target: myLocation,
-                          zoom: 18,
-                        ),
-                        onMapCreated: (controller) async {
-                          final info = await geo.placemarkFromCoordinates(
-                              myLocation.latitude, myLocation.longitude);
-                          final place = info[0];
-                          final street = place.street!;
-                          final address =
-                              '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
-                          setState(() {
-                            placemark = place;
-                          });
-                          defineMarker(myLocation, street, address);
+              child: Stack(children: [
+                GoogleMap(
+                  myLocationEnabled: true,
+                  initialCameraPosition: CameraPosition(
+                    target: myLocation,
+                    zoom: 18,
+                  ),
+                  onMapCreated: (controller) async {
+                    final info = await geo.placemarkFromCoordinates(
+                        myLocation.latitude, myLocation.longitude);
+                    final place = info[0];
+                    final street = place.street!;
+                    final address =
+                        '${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country}';
+                    setState(() {
+                      placemark = place;
+                    });
+                    defineMarker(myLocation, street, address);
 
-                          setState(() {
-                            mapController = controller;
-                          });
-                        },
-                        onTap: (LatLng latLng) {
-                          setState(() {
-                            currentLocation = latLng;
-                          });
-                        },
-                        markers: markers,
-                        zoomControlsEnabled: false,
-                        mapToolbarEnabled: false,
-                        myLocationButtonEnabled: false,
-                        onLongPress: (LatLng latLng) {
-                          onLongPressGoogleMap(latLng);
-                        },
-                      ),
-                      Positioned(
-                        top: 12,
-                        right: 12,
-                        child: FloatingActionButton(
-                          child: const Icon(Icons.my_location),
-                          onPressed: () {
-                            onMyLocationButtonPress();
-                          },
-                        ),
-                      ),
-                    ]),
+                    setState(() {
+                      mapController = controller;
+                    });
+                  },
+                  onTap: (LatLng latLng) {
+                    setState(() {
+                      currentLocation = latLng;
+                    });
+                  },
+                  markers: markers,
+                  zoomControlsEnabled: false,
+                  mapToolbarEnabled: false,
+                  myLocationButtonEnabled: false,
+                  onLongPress: (LatLng latLng) {
+                    onLongPressGoogleMap(latLng);
+                    currentLocation = latLng;
+                  },
+                ),
+                Positioned(
+                  top: 12,
+                  right: 12,
+                  child: FloatingActionButton(
+                    child: const Icon(Icons.my_location),
+                    onPressed: () {
+                      onMyLocationButtonPress();
+                    },
+                  ),
+                ),
+              ]),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),

@@ -23,7 +23,6 @@ class _StoryDetailScreenState extends State<StoryDetailScreen> {
     final storyProvider = context.watch<StoryProvider>();
     final story =
         storyProvider.stories.firstWhere((story) => story.id == widget.storyId);
-    print('Displaying story with lat: ${story.lat}, lon: ${story.lon}');
 
     return Scaffold(
       appBar: AppBar(
